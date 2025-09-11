@@ -1,0 +1,41 @@
+kind: source
+spec:
+  name: gcp
+  path: cloudquery/gcp
+  registry: cloudquery
+  version: "v13.0.0"
+  tables: ["*"]
+  destinations: ["postgresql"]
+  spec:
+    project_ids: 
+      - "cq-playground"
+    # Using application default credentials - no service_account_key_json needed
+    
+    # Focused resource discovery for security analysis
+    resources:
+      - "gcp_compute_instances"
+      - "gcp_storage_buckets"
+      - "gcp_iam_*"
+      - "gcp_compute_networks"
+      - "gcp_compute_subnetworks"
+      - "gcp_compute_firewalls"
+      - "gcp_sql_instances"
+      - "gcp_kms_*"
+      - "gcp_secretmanager_*"
+      - "gcp_compute_ssl_certificates"
+      - "gcp_compute_backend_services"
+      - "gcp_compute_load_balancers"
+      - "gcp_cloudresourcemanager_*"
+      
+---
+kind: destination
+spec:
+  name: postgresql
+  path: cloudquery/postgresql
+  registry: cloudquery
+  version: "v7.0.0"
+  spec:
+    connection_string: "${DATABASE_URL}"
+    pgx_log_level: error
+    batch_size: 1000
+    batch_size_bytes: 4194304

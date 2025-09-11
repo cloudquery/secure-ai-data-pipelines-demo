@@ -1,0 +1,144 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cloudquery}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
+      POSTGRES_DB: ${POSTGRES_DB:-cloudquery_security}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+    networks:
+      - app_network
+
+  # Redis for Caching
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cloudquery}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-cloudquery_security}
+      REDIS_URL: redis://redis:6379
+      CORS_ORIGINS: '["http://localhost:3000","https://yourdomain.com"]'
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./data:/app/data
+      - ./cloudquery/configs:/app/cloudquery
+    networks:
+      - app_network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+  # CloudQuery Sync Service
+  cloudquery:
+    image: ghcr.io/cloudquery/cloudquery:latest
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cloudquery}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-cloudquery_security}
+      # Don't set GOOGLE_APPLICATION_CREDENTIALS to use application default credentials
+    env_file:
+      - .env
+    volumes:
+      - ./cloudquery/configs:/configs
+      - ./data:/data
+      # Mount gcloud application default credentials
+      - ~/.config/gcloud:/root/.config/gcloud:ro
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+    profiles:
+      - sync # Only start when explicitly requested
+
+  # Prometheus for Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - app_network
+
+  # Data Processor Worker
+  data-processor:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cloudquery}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-cloudquery_security}
+      REDIS_URL: redis://redis:6379
+    env_file:
+      - .env
+    command: python app/workers/simple_data_processor.py
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./data:/app/data
+    networks:
+      - app_network
+
+  # Grafana for Visualization
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - app_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  app_network:
+    driver: bridge

@@ -1,0 +1,50 @@
+kind: source
+spec:
+  name: azure
+  path: cloudquery/azure
+  registry: cloudquery
+  version: "v10.0.0"
+  tables: ["*"]
+  destinations: ["postgresql"]
+  spec:
+    subscriptions: 
+      - "${AZURE_SUBSCRIPTION_ID}"
+    
+    # Resource discovery configuration
+    resources:
+      - "azure_compute_virtual_machines"
+      - "azure_storage_accounts"
+      - "azure_authorization_*"
+      - "azure_network_*"
+      - "azure_sql_*"
+      - "azure_web_apps"
+      - "azure_monitor_*"
+      - "azure_keyvault_*"
+      - "azure_dns_*"
+      - "azure_container_*"
+      - "azure_resources_*"
+      - "azure_security_*"
+      - "azure_policy_*"
+      - "azure_management_*"
+      - "azure_eventhub_*"
+      - "azure_servicebus_*"
+      - "azure_cosmosdb_*"
+      - "azure_redis_*"
+      - "azure_search_*"
+      - "azure_cdn_*"
+      - "azure_frontdoor_*"
+      - "azure_applicationgateway_*"
+      - "azure_loadbalancer_*"
+      
+---
+kind: destination
+spec:
+  name: postgresql
+  path: cloudquery/postgresql
+  registry: cloudquery
+  version: "v7.0.0"
+  spec:
+    connection_string: "${DATABASE_URL}"
+    pgx_log_level: error
+    batch_size: 1000
+    batch_size_bytes: 4194304

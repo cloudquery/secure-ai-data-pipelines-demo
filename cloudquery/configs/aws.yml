@@ -1,0 +1,62 @@
+kind: source
+spec:
+  name: aws
+  path: cloudquery/aws
+  registry: cloudquery
+  version: "v24.0.0"
+  tables: ["*"]
+  destinations: ["postgresql"]
+  spec:
+    regions:
+      - us-east-1
+      - us-west-2
+      - eu-west-1
+      - ap-southeast-1
+    accounts:
+      - id: "*"
+    max_retries: 3
+    max_backoff: 30
+    request_timeout: 60
+    aws_debug: false
+    
+    # Resource discovery configuration
+    resources:
+      - "aws_ec2_instances"
+      - "aws_s3_buckets"
+      - "aws_iam_users"
+      - "aws_iam_roles" 
+      - "aws_iam_policies"
+      - "aws_vpc_*"
+      - "aws_security_groups"
+      - "aws_rds_*"
+      - "aws_lambda_functions"
+      - "aws_cloudtrail_trails"
+      - "aws_config_*"
+      - "aws_guardduty_*"
+      - "aws_kms_keys"
+      - "aws_organizations_*"
+      - "aws_route53_*"
+      - "aws_elb_*"
+      - "aws_elbv2_*"
+      - "aws_cloudfront_*"
+      - "aws_apigateway_*"
+      - "aws_eks_clusters"
+      - "aws_ecs_*"
+      - "aws_ssm_*"
+      - "aws_secretsmanager_secrets"
+      - "aws_acm_certificates"
+      - "aws_waf_*"
+      - "aws_shield_*"
+      
+---
+kind: destination
+spec:
+  name: postgresql
+  path: cloudquery/postgresql
+  registry: cloudquery
+  version: "v7.0.0"
+  spec:
+    connection_string: "${DATABASE_URL}"
+    pgx_log_level: error
+    batch_size: 1000
+    batch_size_bytes: 4194304

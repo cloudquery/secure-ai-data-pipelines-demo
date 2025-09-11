@@ -1,0 +1,57 @@
+kind: source
+spec:
+  name: aws
+  path: cloudquery/aws
+  registry: cloudquery
+  version: "v26.6.0"
+  destinations: ["postgresql"]
+  spec:
+    regions:
+      - eu-central-1
+      - eu-west-1
+      - us-east-1  # Many global services are in us-east-1
+    # Essential tables for security analysis
+    tables:
+      # EC2 and Compute
+      - aws_ec2_instances
+      - aws_ec2_security_groups
+      - aws_ec2_vpcs
+      - aws_ec2_subnets
+      - aws_ec2_network_acls
+      # Storage
+      - aws_s3_buckets
+      - aws_s3_bucket_policies
+      - aws_s3_bucket_public_access_blocks
+      - aws_ebs_volumes
+      # IAM and Security
+      - aws_iam_users
+      - aws_iam_roles
+      - aws_iam_policies
+      - aws_iam_groups
+      - aws_iam_role_policies
+      - aws_iam_user_policies
+      # Databases
+      - aws_rds_instances
+      - aws_rds_clusters
+      # Load Balancers
+      - aws_elbv2_load_balancers
+      - aws_elb_load_balancers
+      # Lambda
+      - aws_lambda_functions
+      # CloudFormation
+      - aws_cloudformation_stacks
+    # Optimize for faster sync
+    concurrency: 1000
+    max_retries: 3
+    max_backoff: 30s
+
+---
+kind: destination
+spec:
+  name: postgresql
+  path: cloudquery/postgresql
+  registry: cloudquery
+  version: "v8.0.5"
+  spec:
+    connection_string: "postgresql://cloudquery:secure_password@postgres:5432/cloudquery_security?sslmode=disable"
+    migrate: true
