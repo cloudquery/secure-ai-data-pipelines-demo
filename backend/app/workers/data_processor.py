@@ -12,7 +12,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from sqlalchemy import text
 
 from app.services.ai_analysis import AISecurityAnalyzer
-from .base_processor import BaseDataProcessor
+from app.workers.base_processor import BaseDataProcessor
 
 logger = logging.getLogger(__name__)
 

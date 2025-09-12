@@ -9,7 +9,7 @@ import time
 from typing import Dict, Any
 from sqlalchemy import text
 
-from .base_processor import BaseDataProcessor
+from app.workers.base_processor import BaseDataProcessor
 
 logger = logging.getLogger(__name__)
 

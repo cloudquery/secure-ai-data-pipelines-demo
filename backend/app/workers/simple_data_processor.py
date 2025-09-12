@@ -5,13 +5,19 @@ Listens for database notifications and processes new data automatically.
 """
 
 import logging
+import os
 import time
 from typing import Dict, Any
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from sqlalchemy import text
 
-from .base_processor import BaseDataProcessor
+from app.models.cloud_resources import CloudProvider, CloudAccount, CloudResource
+from app.workers.base_processor import BaseDataProcessor
+
+# Database connection
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://cloudquery:secure_password@postgres:5432/cloudquery_security")
 
 logger = logging.getLogger(__name__)
 
