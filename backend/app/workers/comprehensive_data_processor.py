@@ -4,42 +4,21 @@ Comprehensive background data processor for automatic CloudQuery sync processing
 Processes ALL resources from CloudQuery tables, not just recent ones.
 """
 
-from app.models.database import Base
-from app.models.cloud_resources import CloudProvider, CloudAccount, CloudResource
-import json
 import logging
-import os
-import sys
 import time
-from datetime import datetime
-from typing import Dict, Any, Optional
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, text
+from typing import Dict, Any
+from sqlalchemy import text
 
-# Add the app directory to the Python path
-sys.path.append('/app')
+from .base_processor import BaseDataProcessor
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Database connection
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://cloudquery:secure_password@postgres:5432/cloudquery_security")
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-class ComprehensiveDataProcessor:
+class ComprehensiveDataProcessor(BaseDataProcessor):
     """Comprehensive background processor for CloudQuery sync data."""
 
     def __init__(self):
-        self.db_session = SessionLocal()
+        super().__init__()
 
     def process_all_resources(self) -> Dict[str, int]:
         """Process all resources from CloudQuery tables."""

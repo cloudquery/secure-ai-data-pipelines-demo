@@ -4,43 +4,23 @@ Simple background data processor for automatic CloudQuery sync processing.
 Listens for database notifications and processes new data automatically.
 """
 
-from app.models.database import Base
-from app.models.cloud_resources import CloudProvider, CloudAccount, CloudResource
-import json
 import logging
-import os
-import sys
 import time
-from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 
-# Add the app directory to the Python path
-sys.path.append('/app')
+from .base_processor import BaseDataProcessor
 
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Database connection
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://cloudquery:secure_password@postgres:5432/cloudquery_security")
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
-class SimpleDataProcessor:
+class SimpleDataProcessor(BaseDataProcessor):
     """Simple background processor for CloudQuery sync data."""
 
     def __init__(self):
-        self.db_session = SessionLocal()
+        super().__init__()
 
     def process_azure_data(self, table_name: str) -> int:
         """Process Azure data from CloudQuery tables."""
