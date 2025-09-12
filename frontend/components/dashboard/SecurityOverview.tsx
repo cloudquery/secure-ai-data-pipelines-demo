@@ -174,6 +174,12 @@ export const SecurityOverview: React.FC = () => {
   const [detailedFindings, setDetailedFindings] = useState<DetailedFinding[]>(
     []
   );
+  const [pagination, setPagination] = useState({
+    page: 1,
+    size: 20,
+    total: 0,
+    pages: 0,
+  });
 
   useEffect(() => {
     fetchDashboardData();
@@ -195,7 +201,7 @@ export const SecurityOverview: React.FC = () => {
     }
   };
 
-  const fetchDetailedFindings = async (filter: string) => {
+  const fetchDetailedFindings = async (filter: string, page: number = 1) => {
     try {
       let response;
 
@@ -208,6 +214,12 @@ export const SecurityOverview: React.FC = () => {
           ...(response.high_risk_findings || []),
         ];
         setDetailedFindings(urgentFindings);
+        setPagination({
+          page: 1,
+          size: urgentFindings.length,
+          total: urgentFindings.length,
+          pages: 1,
+        });
         return;
       } else {
         const params = new URLSearchParams();
@@ -218,10 +230,20 @@ export const SecurityOverview: React.FC = () => {
           params.append("recent", "7");
         }
 
+        // Add pagination parameters
+        params.append("page", page.toString());
+        params.append("size", "20");
+
         response = await apiClient.get(
           "/security/findings?" + params.toString()
         );
         setDetailedFindings(response.items || []);
+        setPagination({
+          page: response.page || 1,
+          size: response.size || 20,
+          total: response.total || 0,
+          pages: response.pages || 1,
+        });
       }
     } catch (err: any) {
       console.error("Failed to fetch detailed findings:", err);
@@ -510,7 +532,13 @@ export const SecurityOverview: React.FC = () => {
 
   const handleModalOpen = (modalType: string) => {
     setModalOpen(modalType);
-    fetchDetailedFindings(modalType);
+    setPagination({
+      page: 1,
+      size: 20,
+      total: 0,
+      pages: 0,
+    });
+    fetchDetailedFindings(modalType, 1);
   };
 
   if (loading) {
@@ -1097,31 +1125,71 @@ export const SecurityOverview: React.FC = () => {
         title={`${modalOpen === "total" ? "All" : modalOpen === "high-risk" ? "High Risk" : modalOpen === "recent" ? "Recent" : "Urgent"} Security Findings`}
       >
         <div className="space-y-4">
+          {/* Pagination Info */}
+          {modalOpen !== "urgent" && pagination.total > 0 && (
+            <div className="text-sm text-brand-white mb-4">
+              Showing {(pagination.page - 1) * pagination.size + 1} to{" "}
+              {Math.min(pagination.page * pagination.size, pagination.total)} of{" "}
+              {pagination.total} findings
+            </div>
+          )}
+
           {detailedFindings.length > 0 ? (
-            detailedFindings.map((finding) => (
-              <div
-                key={finding.id}
-                className="border border-cloudquery-logoGreen/20 rounded-lg p-4"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-medium text-brand-white">
-                    {finding.title}
-                  </h3>
-                  <Badge variant={finding.severity as any}>
-                    {finding.severity}
-                  </Badge>
+            <>
+              {detailedFindings.map((finding) => (
+                <div
+                  key={finding.id}
+                  className="border border-cloudquery-logoGreen/20 rounded-lg p-4"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-medium text-brand-white">
+                      {finding.title}
+                    </h3>
+                    <Badge variant={finding.severity as any}>
+                      {finding.severity}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-brand-white mb-2">
+                    {finding.description}
+                  </p>
+                  <div className="flex items-center space-x-4 text-xs text-brand-white">
+                    <span>Resource: {finding.resource_name}</span>
+                    <span>Provider: {finding.provider}</span>
+                    <span>Region: {finding.region}</span>
+                    <span>Risk Score: {finding.risk_score}/10</span>
+                  </div>
                 </div>
-                <p className="text-sm text-brand-white mb-2">
-                  {finding.description}
-                </p>
-                <div className="flex items-center space-x-4 text-xs text-brand-white">
-                  <span>Resource: {finding.resource_name}</span>
-                  <span>Provider: {finding.provider}</span>
-                  <span>Region: {finding.region}</span>
-                  <span>Risk Score: {finding.risk_score}/10</span>
+              ))}
+
+              {/* Pagination Controls */}
+              {modalOpen !== "urgent" && pagination.pages > 1 && (
+                <div className="flex justify-center items-center space-x-4 mt-6">
+                  <button
+                    onClick={() =>
+                      fetchDetailedFindings(modalOpen!, pagination.page - 1)
+                    }
+                    disabled={pagination.page <= 1}
+                    className="px-3 py-1 bg-blue-600 text-white rounded disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-blue-700"
+                  >
+                    Previous
+                  </button>
+
+                  <span className="text-brand-white">
+                    Page {pagination.page} of {pagination.pages}
+                  </span>
+
+                  <button
+                    onClick={() =>
+                      fetchDetailedFindings(modalOpen!, pagination.page + 1)
+                    }
+                    disabled={pagination.page >= pagination.pages}
+                    className="px-3 py-1 bg-blue-600 text-white rounded disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-blue-700"
+                  >
+                    Next
+                  </button>
                 </div>
-              </div>
-            ))
+              )}
+            </>
           ) : (
             <div className="text-center py-8 text-brand-white">
               No detailed findings available at this time.
