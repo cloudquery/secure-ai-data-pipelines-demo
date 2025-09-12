@@ -80,187 +80,20 @@ docker-compose run --rm cloudquery sync /configs/azure.yml
 ### 5. Access the Dashboard
 
 - **Frontend**: <http://localhost:3000>
-- **API Documentation**: <http://localhost:8000/docs>
-- **Grafana**: <http://localhost:3001> (admin/admin)
 
 ## 🏗️ Architecture
 
-### Data Pipeline Overview
-
-The platform processes cloud security data through an automated, event-driven pipeline:
+The platform processes cloud security data through an automated pipeline:
 
 ```text
-CloudQuery Sync → PostgreSQL → Event Triggers → Background Workers → 
-AI Analysis → Security Detection → Dashboard
+CloudQuery Sync → PostgreSQL → Background Workers → AI Analysis → Dashboard
 ```
 
-### Key Components
-
-- **CloudQuery**: Multi-cloud data collection from AWS, GCP, and Azure
-- **PostgreSQL**: Centralized data storage with event-driven notifications
-- **Background Workers**: Automated data processing and normalization
-- **AI Analysis**: GPT-4 powered security assessment and risk scoring
-- **Dashboard**: Real-time visualization and compliance reporting
-
-## 🛠️ Tech Stack
-
-### Backend
-
-- **Framework**: FastAPI with Python 3.11+
-- **Database**: PostgreSQL 15+ with JSONB support
-- **ORM**: SQLAlchemy 2.0
-- **Authentication**: JWT with bcrypt hashing
-- **AI/ML**: OpenAI GPT-4, scikit-learn
-- **Data Processing**: CloudQuery, Pandas, NumPy
-
-### Frontend
-
-- **Framework**: Next.js 14 with React 18
-- **Styling**: Tailwind CSS with HeadlessUI
-- **Visualization**: D3.js, Recharts, React Force Graph
-- **State Management**: React Query
-- **Forms**: React Hook Form with Zod validation
-
-### Infrastructure
-
-- **Containerization**: Docker with multi-stage builds
-- **Orchestration**: Docker Compose
-- **Monitoring**: Prometheus + Grafana
-- **Caching**: Redis
-
-## 📊 Usage
-
-### Dashboard Features
-
-- **Security Overview**: Real-time risk metrics and finding distribution
-- **Compliance Status**: Framework-specific violation tracking (PCI DSS, SOC 2, ISO 27001, HIPAA, GDPR)
-- **Interactive Graphs**: Visual representation of resource relationships
-
-## 🔒 Security
-
-### Data Protection
-
-- **Encryption**: AES-256 at rest, TLS 1.3 in transit
-- **PII Sanitization**: Automatic detection and removal of sensitive data
-- **Access Controls**: JWT authentication with role-based permissions
-- **Audit Logging**: Complete trail of all activities
-
-### AI Security
-
-- **Prompt Injection Protection**: Secure templates prevent malicious attacks
-- **Data Anonymization**: Resource identifiers hashed before AI analysis
-- **Output Validation**: AI responses validated and sanitized
-- **Privacy Preservation**: Sensitive data never leaves secure environment
-
-### Compliance
-
-Supports PCI DSS, SOC 2, ISO 27001, HIPAA, and GDPR requirements with automated compliance checking and reporting.
-
-## 📈 Monitoring
-
-- **Metrics**: Application performance, security findings, compliance scores
-- **Logging**: Structured JSON logs with correlation IDs
-- **Alerting**: Real-time notifications for security events
-- **Dashboards**: Grafana visualization for system health
-
-## 🔧 Development
-
-### Backend Development
-
-```bash
-cd backend
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run database migrations
-alembic upgrade head
-
-# Start development server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### Frontend Development
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-### Data Processing Development
-
-```bash
-# Run data processor locally
-cd backend
-python app/workers/simple_data_processor.py
-
-# Test data processing (handled automatically by background workers)
-
-# Run with Docker for testing
-docker-compose run --rm data-processor
-```
-
-### Testing
-
-```bash
-# Backend tests
-cd backend
-pytest tests/
-
-# Frontend tests
-cd frontend
-npm test
-
-# Test data processing
-docker-compose run --rm data-processor python -c "
-from app.workers.simple_data_processor import SimpleDataProcessor
-processor = SimpleDataProcessor()
-print('Data processor test successful')
-"
-```
+Key components include CloudQuery for multi-cloud data collection, PostgreSQL for storage, background workers for processing, AI analysis for security assessment, and a React dashboard for visualization.
 
 ## 🛠️ Troubleshooting
 
 For detailed troubleshooting information, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
-
-## 📚 API Documentation
-
-### Core Endpoints
-
-#### Resources
-
-- `GET /api/v1/resources/` - List cloud resources
-- `GET /api/v1/resources/{id}` - Get resource details
-- `GET /api/v1/resources/stats/overview` - Resource statistics
-- `POST /api/v1/resources/{id}/scan` - Trigger security scan
-
-#### Security
-
-- `GET /api/v1/security/findings` - List security findings
-- `GET /api/v1/security/findings/{id}` - Get finding details
-- `PUT /api/v1/security/findings/{id}/status` - Update finding status
-- `POST /api/v1/security/analyze` - Trigger AI analysis
-- `GET /api/v1/security/dashboard` - Security dashboard data
-
-### Authentication
-
-All API endpoints require JWT authentication:
-
-```bash
-# Get access token
-curl -X POST http://localhost:8000/auth/token \
-  -H "Content-Type: application/json" \
-  -d '{"username": "admin", "password": "password"}'
-
-# Use token in requests
-curl -H "Authorization: Bearer <token>" \
-  http://localhost:8000/api/v1/resources/
-```
 
 ## 🤝 Contributing
 
