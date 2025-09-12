@@ -5,6 +5,8 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import { Card } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
+import { CloudQueryLogo } from "../components/ui/CloudQueryLogo";
+import { Footer } from "../components/ui/Footer";
 import SecurityOverview from "../components/dashboard/SecurityOverview";
 import { AIAnalysis } from "../components/dashboard/AIAnalysis";
 import apiClient from "../lib/api/client";
@@ -80,10 +82,10 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Head>
-        <title>Secure AI Data Pipeline - Dashboard</title>
+        <title>CloudQuery Secure AI Data Pipeline - Dashboard</title>
         <meta
           name="description"
-          content="Cloud security analysis and monitoring dashboard"
+          content="CloudQuery-powered cloud security analysis and monitoring dashboard for secure AI data pipelines"
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -92,13 +94,17 @@ export default function Dashboard() {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Secure AI Data Pipeline
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Cloud security analysis and monitoring dashboard
-              </p>
+            <div className="flex items-center space-x-4">
+              <CloudQueryLogo size="lg" />
+              <div>
+                <h1 className="text-3xl font-bold text-cloudquery-darkBlue">
+                  Secure AI Data Pipeline
+                </h1>
+                <p className="text-cloudquery-gray mt-1">
+                  CloudQuery-powered cloud security analysis and monitoring
+                  dashboard
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-500">
@@ -107,7 +113,7 @@ export default function Dashboard() {
               <button
                 onClick={handleRefresh}
                 disabled={loading}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 bg-cloudquery-blue text-white rounded-md hover:bg-cloudquery-darkBlue disabled:opacity-50 transition-colors"
               >
                 <ArrowPathIcon
                   className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
@@ -129,8 +135,8 @@ export default function Dashboard() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-cloudquery-blue text-cloudquery-blue"
+                    : "border-transparent text-gray-500 hover:text-cloudquery-gray hover:border-gray-300"
                 }`}
               >
                 <tab.icon className="w-5 h-5" />
@@ -149,8 +155,8 @@ export default function Dashboard() {
             {resourceOverview && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card className="text-center">
-                  <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-blue-100 rounded-full">
-                    <CloudIcon className="w-6 h-6 text-blue-600" />
+                  <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-cloudquery-50 rounded-full">
+                    <CloudIcon className="w-6 h-6 text-cloudquery-blue" />
                   </div>
                   <div className="text-2xl font-bold text-gray-900">
                     {resourceOverview.total_resources}
@@ -226,7 +232,7 @@ export default function Dashboard() {
                         className="flex items-center justify-between"
                       >
                         <div className="flex items-center space-x-3">
-                          <div className="flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full text-blue-600 text-sm font-medium">
+                          <div className="flex items-center justify-center w-6 h-6 bg-cloudquery-100 rounded-full text-cloudquery-blue text-sm font-medium">
                             {index + 1}
                           </div>
                           <span className="text-sm font-medium text-gray-900">
@@ -246,6 +252,9 @@ export default function Dashboard() {
 
         {activeTab === "ai-analysis" && <AIAnalysis />}
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

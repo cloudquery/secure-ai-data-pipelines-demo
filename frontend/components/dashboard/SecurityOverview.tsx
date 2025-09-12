@@ -1,22 +1,32 @@
 /**
  * Security Overview Dashboard Component
  */
-import React, { useState, useEffect } from 'react';
-import { Card } from '../ui/Card';
-import { Badge } from '../ui/Badge';
-import { 
-  ShieldExclamationIcon, 
+import React, { useState, useEffect } from "react";
+import { Card } from "../ui/Card";
+import { Badge } from "../ui/Badge";
+import {
+  ShieldExclamationIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  ClockIcon 
-} from '@heroicons/react/24/outline';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import apiClient from '../../lib/api/client';
+  ClockIcon,
+} from "@heroicons/react/24/outline";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import apiClient from "../../lib/api/client";
 
 interface SecurityDashboardData {
   total_findings: number;
   high_risk_findings: number;
-  auto_remediable_findings: number;
   recent_findings: number;
   average_risk_score: number;
   severity_distribution: Array<{ severity: string; count: number }>;
@@ -25,18 +35,18 @@ interface SecurityDashboardData {
 }
 
 const SEVERITY_COLORS = {
-  critical: '#dc2626',
-  high: '#ea580c',
-  medium: '#d97706',
-  low: '#65a30d',
-  info: '#0284c7',
+  critical: "#dc2626",
+  high: "#ea580c",
+  medium: "#d97706",
+  low: "#65a30d",
+  info: "#0284c7",
 };
 
 const STATUS_COLORS = {
-  open: '#dc2626',
-  in_progress: '#d97706',
-  resolved: '#16a34a',
-  false_positive: '#6b7280',
+  open: "#dc2626",
+  in_progress: "#d97706",
+  resolved: "#16a34a",
+  false_positive: "#6b7280",
 };
 
 export const SecurityOverview: React.FC = () => {
@@ -55,7 +65,7 @@ export const SecurityOverview: React.FC = () => {
       setData(response);
       setError(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch dashboard data');
+      setError(err.message || "Failed to fetch dashboard data");
     } finally {
       setLoading(false);
     }
@@ -81,7 +91,9 @@ export const SecurityOverview: React.FC = () => {
     return (
       <Card className="text-center py-12">
         <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-500 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Dashboard</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          Error Loading Dashboard
+        </h3>
         <p className="text-gray-600 mb-4">{error}</p>
         <button
           onClick={fetchDashboardData}
@@ -97,16 +109,19 @@ export const SecurityOverview: React.FC = () => {
     return null;
   }
 
-  const severityData = data.severity_distribution.map(item => ({
+  const severityData = data.severity_distribution.map((item) => ({
     name: item.severity,
     value: item.count,
-    color: SEVERITY_COLORS[item.severity as keyof typeof SEVERITY_COLORS] || '#6b7280'
+    color:
+      SEVERITY_COLORS[item.severity as keyof typeof SEVERITY_COLORS] ||
+      "#6b7280",
   }));
 
-  const statusData = data.status_distribution.map(item => ({
+  const statusData = data.status_distribution.map((item) => ({
     name: item.status,
     value: item.count,
-    color: STATUS_COLORS[item.status as keyof typeof STATUS_COLORS] || '#6b7280'
+    color:
+      STATUS_COLORS[item.status as keyof typeof STATUS_COLORS] || "#6b7280",
   }));
 
   return (
@@ -117,7 +132,9 @@ export const SecurityOverview: React.FC = () => {
           <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
             <ShieldExclamationIcon className="w-6 h-6 text-red-600" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">{data.total_findings}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {data.total_findings}
+          </div>
           <div className="text-sm text-gray-600">Total Findings</div>
         </Card>
 
@@ -125,23 +142,19 @@ export const SecurityOverview: React.FC = () => {
           <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-orange-100 rounded-full">
             <ExclamationTriangleIcon className="w-6 h-6 text-orange-600" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">{data.high_risk_findings}</div>
-          <div className="text-sm text-gray-600">High Risk</div>
-        </Card>
-
-        <Card className="text-center">
-          <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-green-100 rounded-full">
-            <CheckCircleIcon className="w-6 h-6 text-green-600" />
+          <div className="text-2xl font-bold text-gray-900">
+            {data.high_risk_findings}
           </div>
-          <div className="text-2xl font-bold text-gray-900">{data.auto_remediable_findings}</div>
-          <div className="text-sm text-gray-600">Auto-Remediable</div>
+          <div className="text-sm text-gray-600">High Risk</div>
         </Card>
 
         <Card className="text-center">
           <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-blue-100 rounded-full">
             <ClockIcon className="w-6 h-6 text-blue-600" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">{data.recent_findings}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {data.recent_findings}
+          </div>
           <div className="text-sm text-gray-600">Recent (7 days)</div>
         </Card>
       </div>
@@ -160,8 +173,21 @@ export const SecurityOverview: React.FC = () => {
           </div>
         </div>
         <div className="mt-2 text-sm text-gray-600">
-          <Badge variant={data.average_risk_score >= 7 ? 'critical' : data.average_risk_score >= 5 ? 'high' : 'medium'}>
-            {data.average_risk_score >= 7 ? 'Critical' : data.average_risk_score >= 5 ? 'High' : 'Medium'} Risk Level
+          <Badge
+            variant={
+              data.average_risk_score >= 7
+                ? "critical"
+                : data.average_risk_score >= 5
+                  ? "high"
+                  : "medium"
+            }
+          >
+            {data.average_risk_score >= 7
+              ? "Critical"
+              : data.average_risk_score >= 5
+                ? "High"
+                : "Medium"}{" "}
+            Risk Level
           </Badge>
         </div>
       </Card>
@@ -231,7 +257,7 @@ export const SecurityOverview: React.FC = () => {
                   {index + 1}
                 </div>
                 <span className="text-sm font-medium text-gray-900 capitalize">
-                  {item.type.replace('_', ' ')}
+                  {item.type.replace("_", " ")}
                 </span>
               </div>
               <Badge variant="info">{item.count}</Badge>

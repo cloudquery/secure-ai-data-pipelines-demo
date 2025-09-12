@@ -50,9 +50,6 @@ class SecurityService:
                     compliance_frameworks=finding_data.get(
                         "compliance_frameworks"),
                     remediation_priority=finding_data.get("priority"),
-                    auto_remediable=finding_data.get("auto_remediable", False),
-                    remediation_steps=finding_data.get("remediation_steps"),
-                    terraform_fix=finding_data.get("terraform_fix")
                 )
                 self.db.add(finding)
 
@@ -111,22 +108,7 @@ class SecurityService:
                 ],
                 "compliance_frameworks": ["PCI DSS", "SOC 2", "ISO 27001"],
                 "priority": "critical" if severity == "critical" else "high",
-                "auto_remediable": True,
-                "remediation_steps": [
-                    "Review if public access is necessary",
-                    "Implement proper access controls",
-                    "Use VPC endpoints or private connectivity",
-                    "Enable logging and monitoring"
-                ]
             }
-
-            # Generate Terraform fix
-            if resource.resource_type == "s3_bucket":
-                finding["terraform_fix"] = self._generate_s3_private_terraform(
-                    resource)
-            elif resource.resource_type == "rds_instance":
-                finding["terraform_fix"] = self._generate_rds_private_terraform(
-                    resource)
 
             findings.append(finding)
 
@@ -159,13 +141,6 @@ class SecurityService:
                 },
                 "compliance_frameworks": ["PCI DSS", "HIPAA", "SOC 2"],
                 "priority": severity,
-                "auto_remediable": True,
-                "remediation_steps": [
-                    "Enable encryption at rest",
-                    "Use customer-managed KMS keys",
-                    "Implement key rotation policies",
-                    "Enable encryption in transit"
-                ]
             }
 
             findings.append(finding)
@@ -196,13 +171,6 @@ class SecurityService:
                 "title": f"{resource.resource_type} not in VPC",
                 "description": f"The {resource.resource_type} is not deployed in a VPC, reducing network isolation and security controls.",
                 "priority": "medium",
-                "auto_remediable": False,
-                "remediation_steps": [
-                    "Migrate resource to VPC",
-                    "Configure appropriate subnets",
-                    "Implement security groups",
-                    "Review network access controls"
-                ]
             }
             findings.append(finding)
 
@@ -229,13 +197,6 @@ class SecurityService:
                             "title": "SSH access open to the world",
                             "description": "Security group allows SSH access (port 22) from any IP address (0.0.0.0/0).",
                             "priority": "critical",
-                            "auto_remediable": True,
-                            "remediation_steps": [
-                                "Restrict SSH access to specific IP ranges",
-                                "Use bastion hosts for SSH access",
-                                "Implement VPN or private connectivity",
-                                "Enable MFA for SSH access"
-                            ]
                         }
                         findings.append(finding)
 
@@ -247,7 +208,6 @@ class SecurityService:
                             "title": "RDP access open to the world",
                             "description": "Security group allows RDP access (port 3389) from any IP address (0.0.0.0/0).",
                             "priority": "critical",
-                            "auto_remediable": True
                         }
                         findings.append(finding)
 
@@ -274,13 +234,6 @@ class SecurityService:
                             "title": "Overly permissive IAM policy",
                             "description": "IAM policy grants wildcard (*) permissions, violating principle of least privilege.",
                             "priority": "high",
-                            "auto_remediable": False,
-                            "remediation_steps": [
-                                "Review and scope down permissions",
-                                "Apply principle of least privilege",
-                                "Use specific actions instead of wildcards",
-                                "Implement regular access reviews"
-                            ]
                         }
                         findings.append(finding)
 
@@ -307,81 +260,3 @@ class SecurityService:
         # This would integrate with OpenAI or other AI services
         # For now, return empty list as placeholder
         return []
-
-    def _generate_s3_private_terraform(self, resource: CloudResource) -> str:
-        """Generate Terraform code to make S3 bucket private."""
-
-        return f"""
-# Make S3 bucket private
-resource "aws_s3_bucket_public_access_block" "{resource.resource_name}_pab" {{
-  bucket = aws_s3_bucket.{resource.resource_name}.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}}
-
-resource "aws_s3_bucket_policy" "{resource.resource_name}_policy" {{
-  bucket = aws_s3_bucket.{resource.resource_name}.id
-
-  policy = jsonencode({{
-    Version = "2012-10-17"
-    Statement = [
-      {{
-        Sid       = "DenyPublicAccess"
-        Effect    = "Deny"
-        Principal = "*"
-        Action    = "s3:*"
-        Resource = [
-          aws_s3_bucket.{resource.resource_name}.arn,
-          "${{aws_s3_bucket.{resource.resource_name}.arn}}/*"
-        ]
-        Condition = {{
-          Bool = {{
-            "aws:SecureTransport" = "false"
-          }}
-        }}
-      }}
-    ]
-  }})
-}}
-"""
-
-    def _generate_rds_private_terraform(self, resource: CloudResource) -> str:
-        """Generate Terraform code to make RDS instance private."""
-
-        return f"""
-# Make RDS instance private
-resource "aws_db_instance" "{resource.resource_name}" {{
-  # ... other configuration ...
-  
-  publicly_accessible = false
-  
-  # Ensure it's in a private subnet
-  db_subnet_group_name = aws_db_subnet_group.private.name
-  
-  # Apply security group that doesn't allow public access
-  vpc_security_group_ids = [aws_security_group.rds_private.id]
-}}
-
-resource "aws_security_group" "rds_private" {{
-  name_prefix = "{resource.resource_name}-private"
-  vpc_id      = var.vpc_id
-
-  # Only allow access from application servers
-  ingress {{
-    from_port       = 3306
-    to_port         = 3306
-    protocol        = "tcp"
-    security_groups = [aws_security_group.app_servers.id]
-  }}
-
-  egress {{
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }}
-}}
-"""

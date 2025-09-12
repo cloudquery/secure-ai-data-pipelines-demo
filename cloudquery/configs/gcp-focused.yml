@@ -39,3 +39,5 @@ spec:
     pgx_log_level: error
     batch_size: 1000
     batch_size_bytes: 4194304
+
+

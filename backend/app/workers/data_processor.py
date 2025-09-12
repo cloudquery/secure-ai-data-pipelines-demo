@@ -4,8 +4,6 @@ Background data processor for automatic CloudQuery sync processing.
 Listens for database notifications and processes new data automatically.
 """
 
-from app.services.risk_detection import MultiCloudRiskDetector
-from app.services.graph_analysis import CloudResourceGraph
 from app.services.ai_analysis import AISecurityAnalyzer
 from app.models.database import Base
 from app.models.cloud_resources import CloudProvider, CloudAccount, CloudResource
@@ -45,7 +43,6 @@ class DataProcessor:
     def __init__(self):
         self.db_session = SessionLocal()
         self.ai_analyzer = AISecurityAnalyzer()
-        self.risk_detector = MultiCloudRiskDetector(self.db_session)
 
     def process_azure_data(self, table_name: str) -> int:
         """Process Azure data from CloudQuery tables."""

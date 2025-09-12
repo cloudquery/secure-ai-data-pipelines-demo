@@ -24,8 +24,6 @@ async def list_security_findings(
         None, description="Filter by remediation status"),
     provider: Optional[str] = Query(
         None, description="Filter by cloud provider"),
-    auto_remediable: Optional[bool] = Query(
-        None, description="Filter by auto-remediable status"),
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(20, ge=1, le=100, description="Page size"),
     db: Session = Depends(get_db)
@@ -47,10 +45,6 @@ async def list_security_findings(
     if provider:
         query = query.filter(CloudProvider.name == provider)
 
-    if auto_remediable is not None:
-        query = query.filter(
-            SecurityFinding.auto_remediable == auto_remediable)
-
     # Order by risk score descending
     query = query.order_by(desc(SecurityFinding.risk_score))
 
@@ -70,7 +64,6 @@ async def list_security_findings(
             "description": finding.description,
             "remediation_status": finding.remediation_status,
             "remediation_priority": finding.remediation_priority,
-            "auto_remediable": finding.auto_remediable,
             "first_detected": finding.first_detected.isoformat() if finding.first_detected else None,
             "last_detected": finding.last_detected.isoformat() if finding.last_detected else None,
             "resource": {
@@ -124,9 +117,6 @@ async def get_security_finding(
         "remediation_status": finding.remediation_status,
         "remediation_priority": finding.remediation_priority,
         "remediation_effort": finding.remediation_effort,
-        "auto_remediable": finding.auto_remediable,
-        "remediation_steps": finding.remediation_steps,
-        "terraform_fix": finding.terraform_fix,
         "first_detected": finding.first_detected.isoformat() if finding.first_detected else None,
         "last_detected": finding.last_detected.isoformat() if finding.last_detected else None,
         "resolved_at": finding.resolved_at.isoformat() if finding.resolved_at else None,
@@ -209,12 +199,6 @@ async def get_security_dashboard(
         func.count(SecurityFinding.id).label("count")
     ).group_by(SecurityFinding.finding_type).order_by(desc(func.count(SecurityFinding.id))).limit(10).all()
 
-    # Auto-remediable findings
-    auto_remediable_count = db.query(func.count(SecurityFinding.id)).filter(
-        SecurityFinding.auto_remediable == True,
-        SecurityFinding.remediation_status == "open"
-    ).scalar()
-
     # High risk findings (score >= 7)
     high_risk_count = db.query(func.count(SecurityFinding.id)).filter(
         SecurityFinding.risk_score >= 7.0,
@@ -234,7 +218,6 @@ async def get_security_dashboard(
     return {
         "total_findings": sum(stat.count for stat in severity_stats),
         "high_risk_findings": high_risk_count,
-        "auto_remediable_findings": auto_remediable_count,
         "recent_findings": recent_findings,
         "average_risk_score": round(float(avg_risk_score), 2),
         "severity_distribution": [

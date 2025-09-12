@@ -99,7 +99,6 @@ Provide your analysis in JSON format:
     "risk_paths": [
         {{
             "path": ["resource1", "resource2", "resource3"],
-            "risk_type": "<escalation|exfiltration|lateral_movement>",
             "severity": "<critical|high|medium|low>",
             "description": "<path_description>"
         }}
@@ -465,7 +464,6 @@ class AISecurityAnalyzer:
             if rel.get("relationship_type") == "admin_access":
                 risk_paths.append({
                     "path": [rel.get("source"), rel.get("target")],
-                    "risk_type": "privilege_escalation",
                     "severity": "high",
                     "description": "Administrative access relationship detected"
                 })

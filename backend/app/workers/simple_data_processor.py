@@ -107,8 +107,70 @@ class SimpleDataProcessor:
     def process_aws_data(self, table_name: str) -> int:
         """Process AWS data from CloudQuery tables."""
         logger.info(f"Processing AWS data from {table_name}")
-        # TODO: Implement AWS processing
-        return 0
+
+        try:
+            # Get AWS resources based on table name
+            if 's3_buckets' in table_name:
+                resources = self.db_session.execute(text("""
+                    SELECT 
+                        account_id,
+                        arn,
+                        name,
+                        region,
+                        creation_date,
+                        policy_status,
+                        tags
+                    FROM aws_s3_buckets
+                    WHERE _cq_sync_time > NOW() - INTERVAL '1 hour'
+                    LIMIT 50
+                """)).fetchall()
+
+                return self._process_s3_buckets(resources)
+
+            elif 'iam_users' in table_name:
+                resources = self.db_session.execute(text("""
+                    SELECT 
+                        account_id,
+                        arn,
+                        user_name,
+                        create_date,
+                        path,
+                        tags
+                    FROM aws_iam_users
+                    WHERE _cq_sync_time > NOW() - INTERVAL '1 hour'
+                    LIMIT 50
+                """)).fetchall()
+
+                return self._process_iam_users(resources)
+
+            elif 'ec2_instances' in table_name:
+                resources = self.db_session.execute(text("""
+                    SELECT 
+                        account_id,
+                        arn,
+                        instance_id,
+                        instance_type,
+                        state,
+                        region,
+                        availability_zone,
+                        vpc_id,
+                        subnet_id,
+                        tags
+                    FROM aws_ec2_instances
+                    WHERE _cq_sync_time > NOW() - INTERVAL '1 hour'
+                    LIMIT 50
+                """)).fetchall()
+
+                return self._process_ec2_instances(resources)
+
+            else:
+                logger.info(
+                    f"No specific processor for AWS table {table_name}")
+                return 0
+
+        except Exception as e:
+            logger.error(f"Error processing AWS data from {table_name}: {e}")
+            raise
 
     def process_gcp_data(self, table_name: str) -> int:
         """Process GCP data from CloudQuery tables."""
@@ -244,6 +306,154 @@ class SimpleDataProcessor:
 
         self.db_session.commit()
         logger.info(f"Processed {processed_count} virtual networks")
+        return processed_count
+
+    def _process_s3_buckets(self, resources) -> int:
+        """Process AWS S3 buckets."""
+        if not resources:
+            return 0
+
+        # Get or create AWS provider and account
+        provider = self._get_or_create_provider('aws')
+        account_id = resources[0][0]
+        account = self._get_or_create_account(provider.id, account_id)
+
+        processed_count = 0
+        for resource in resources:
+            try:
+                policy_status = resource[5] or {}
+                # Check if bucket has public access based on policy status
+                public_access = False
+                if policy_status:
+                    # If there's a policy, check if it allows public access
+                    public_access = True  # Conservative assumption - would need to parse policy
+
+                cloud_resource = CloudResource(
+                    provider_id=provider.id,
+                    account_id=account.id,
+                    resource_id=resource[1] or '',  # arn
+                    resource_arn=resource[1] or '',
+                    resource_name=resource[2] or '',  # name
+                    resource_type='s3_bucket',
+                    service_name='s3',
+                    region=resource[3] or 'us-east-1',
+                    state='active',
+                    configuration={
+                        'creation_date': resource[4].isoformat() if resource[4] else None,
+                        'policy_status': policy_status
+                    },
+                    tags=resource[6] or {},
+                    public_access=public_access,
+                    encryption_enabled=False,  # Would need to check bucket encryption separately
+                    discovered_at=datetime.utcnow(),
+                    last_scanned=datetime.utcnow()
+                )
+
+                self.db_session.add(cloud_resource)
+                processed_count += 1
+
+            except Exception as e:
+                logger.error(f"Error processing S3 bucket {resource[2]}: {e}")
+                continue
+
+        self.db_session.commit()
+        logger.info(f"Processed {processed_count} S3 buckets")
+        return processed_count
+
+    def _process_iam_users(self, resources) -> int:
+        """Process AWS IAM users."""
+        if not resources:
+            return 0
+
+        provider = self._get_or_create_provider('aws')
+        account_id = resources[0][0]
+        account = self._get_or_create_account(provider.id, account_id)
+
+        processed_count = 0
+        for resource in resources:
+            try:
+                cloud_resource = CloudResource(
+                    provider_id=provider.id,
+                    account_id=account.id,
+                    resource_id=resource[1] or '',  # arn
+                    resource_arn=resource[1] or '',
+                    resource_name=resource[2] or '',  # user_name
+                    resource_type='iam_user',
+                    service_name='iam',
+                    region='global',
+                    state='active',
+                    configuration={
+                        'create_date': resource[3].isoformat() if resource[3] else None,
+                        'path': resource[4] or '/'
+                    },
+                    tags=resource[5] or {},
+                    public_access=False,
+                    encryption_enabled=True,
+                    discovered_at=datetime.utcnow(),
+                    last_scanned=datetime.utcnow()
+                )
+
+                self.db_session.add(cloud_resource)
+                processed_count += 1
+
+            except Exception as e:
+                logger.error(f"Error processing IAM user {resource[2]}: {e}")
+                continue
+
+        self.db_session.commit()
+        logger.info(f"Processed {processed_count} IAM users")
+        return processed_count
+
+    def _process_ec2_instances(self, resources) -> int:
+        """Process AWS EC2 instances."""
+        if not resources:
+            return 0
+
+        provider = self._get_or_create_provider('aws')
+        account_id = resources[0][0]
+        account = self._get_or_create_account(provider.id, account_id)
+
+        processed_count = 0
+        for resource in resources:
+            try:
+                state_info = resource[4] or {}
+                instance_state = state_info.get('name', 'unknown') if isinstance(
+                    state_info, dict) else str(state_info)
+
+                cloud_resource = CloudResource(
+                    provider_id=provider.id,
+                    account_id=account.id,
+                    resource_id=resource[1] or '',  # arn
+                    resource_arn=resource[1] or '',
+                    resource_name=resource[2] or '',  # instance_id
+                    resource_type='ec2_instance',
+                    service_name='ec2',
+                    region=resource[5] or 'unknown',
+                    availability_zone=resource[6] or '',
+                    vpc_id=resource[7] or '',
+                    subnet_id=resource[8] or '',
+                    state=instance_state,
+                    configuration={
+                        'instance_type': resource[3] or '',
+                        'state': state_info
+                    },
+                    tags=resource[9] or {},
+                    public_access=False,  # Would need to check security groups
+                    encryption_enabled=False,  # Would need to check EBS encryption
+                    discovered_at=datetime.utcnow(),
+                    last_scanned=datetime.utcnow()
+                )
+
+                self.db_session.add(cloud_resource)
+                processed_count += 1
+
+            except Exception as e:
+                logger.error(
+                    f"Error processing EC2 instance {resource[2]}: {e}")
+                continue
+
+        self.db_session.commit()
+        logger.info(f"Processed {processed_count} EC2 instances")
         return processed_count
 
     def _get_or_create_provider(self, provider_name: str) -> CloudProvider:

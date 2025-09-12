@@ -28,7 +28,6 @@ interface AnalysisResult {
     finding_type: string;
     description: string;
     risk_score: number;
-    auto_remediable: boolean;
     remediation_status: string;
   }>;
   ai_metadata?: {
@@ -51,7 +50,6 @@ interface AnalysisHistory {
     finding_type: string;
     description: string;
     risk_score: number;
-    auto_remediable: boolean;
     remediation_status: string;
   }>;
   ai_metadata?: {
@@ -95,7 +93,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "public_s3_bucket",
               description: "S3 bucket has public read access enabled",
               risk_score: 8.5,
-              auto_remediable: true,
               remediation_status: "open",
             },
             {
@@ -104,7 +101,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "unencrypted_ebs",
               description: "EBS volume is not encrypted at rest",
               risk_score: 6.2,
-              auto_remediable: true,
               remediation_status: "open",
             },
             {
@@ -113,7 +109,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "exposed_database",
               description: "RDS instance is publicly accessible",
               risk_score: 9.1,
-              auto_remediable: false,
               remediation_status: "open",
             },
           ],
@@ -139,7 +134,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "weak_encryption",
               description: "Using weak encryption algorithm",
               risk_score: 5.8,
-              auto_remediable: true,
               remediation_status: "resolved",
             },
             {
@@ -148,7 +142,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "missing_monitoring",
               description: "Resource lacks proper monitoring",
               risk_score: 3.2,
-              auto_remediable: false,
               remediation_status: "open",
             },
           ],
@@ -174,7 +167,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "overprivileged_iam",
               description: "IAM role has excessive permissions",
               risk_score: 7.8,
-              auto_remediable: true,
               remediation_status: "in_progress",
             },
             {
@@ -183,7 +175,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "exposed_secrets",
               description: "Secrets exposed in environment variables",
               risk_score: 9.5,
-              auto_remediable: false,
               remediation_status: "open",
             },
             {
@@ -192,7 +183,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "insecure_network",
               description: "Network security group allows too broad access",
               risk_score: 6.1,
-              auto_remediable: true,
               remediation_status: "open",
             },
           ],
@@ -239,7 +229,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "public_s3_bucket",
               description: "S3 bucket has public read access enabled",
               risk_score: 8.5,
-              auto_remediable: true,
               remediation_status: "open",
             },
             {
@@ -248,7 +237,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "unencrypted_ebs",
               description: "EBS volume is not encrypted at rest",
               risk_score: 6.2,
-              auto_remediable: true,
               remediation_status: "open",
             },
             {
@@ -257,7 +245,6 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "exposed_database",
               description: "RDS instance is publicly accessible",
               risk_score: 9.1,
-              auto_remediable: false,
               remediation_status: "open",
             },
           ],
@@ -433,11 +420,6 @@ export const AIAnalysis: React.FC = () => {
                           <div className="text-sm font-medium text-gray-900">
                             Risk: {finding.risk_score}/10
                           </div>
-                          {finding.auto_remediable && (
-                            <Badge variant="success" size="sm">
-                              Auto-fixable
-                            </Badge>
-                          )}
                         </div>
                       </div>
                     ))}
@@ -544,11 +526,6 @@ export const AIAnalysis: React.FC = () => {
                             <div className="text-xs font-medium text-gray-900">
                               Risk: {finding.risk_score}/10
                             </div>
-                            {finding.auto_remediable && (
-                              <Badge variant="success" size="sm">
-                                Auto-fixable
-                              </Badge>
-                            )}
                           </div>
                         </div>
                       ))}
