@@ -12,13 +12,17 @@ import {
 } from "@heroicons/react/24/outline";
 
 export const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   const footerLinks = {
     product: [
       {
         name: "Documentation",
-        href: "https://docs.cloudquery.io",
+        href: "https://docs.cloudquery.io/docs",
         icon: BookOpenIcon,
       },
       { name: "Homepage", href: "https://www.cloudquery.io", icon: HomeIcon },
@@ -33,35 +37,40 @@ export const Footer: React.FC = () => {
         name: "Getting Started",
         href: "https://docs.cloudquery.io/docs/getting-started",
       },
-      { name: "Plugins", href: "https://docs.cloudquery.io/docs/plugins" },
+      {
+        name: "Integrations",
+        href: "https://hub.cloudquery.io/plugins/source",
+      },
       {
         name: "Community",
         href: "https://github.com/cloudquery/cloudquery/discussions",
       },
     ],
     support: [
-      { name: "Discord", href: "https://cloudquery.io/discord" },
-      { name: "Twitter", href: "https://twitter.com/cloudqueryio" },
+      {
+        name: "LinkedIn",
+        href: "https://www.linkedin.com/company/cloudqueryio/",
+      },
+      { name: "YouTube", href: "https://www.youtube.com/@cloudqueryio" },
       { name: "Blog", href: "https://www.cloudquery.io/blog" },
     ],
   };
 
   return (
-    <footer className="bg-cloudquery-darkGray text-white">
+    <footer className="bg-cloudquery-bgDarkTeal text-cloudquery-textWhite">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="lg:col-span-1">
             <CloudQueryLogo size="lg" className="mb-4" />
-            <p className="text-gray-300 text-sm leading-relaxed mb-4">
-              CloudQuery is an open-source cloud asset inventory powered by SQL.
-              Query your cloud infrastructure with SQL for security, compliance,
-              and cost optimization.
+            <p className="text-cloudquery-textWhite/80 text-sm leading-relaxed mb-4">
+              CloudQuery is lightning-fast ELT that runs entirely on your infra,
+              powering anything from cloud security analytics to AI pipelines.
             </p>
             <div className="flex space-x-4">
               <a
                 href="https://github.com/cloudquery/cloudquery"
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-cloudquery-textWhite/60 hover:text-cloudquery-textWhite transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -75,18 +84,33 @@ export const Footer: React.FC = () => {
                 </svg>
               </a>
               <a
-                href="https://twitter.com/cloudqueryio"
-                className="text-gray-400 hover:text-white transition-colors"
+                href="https://www.linkedin.com/company/cloudqueryio/"
+                className="text-cloudquery-textWhite/60 hover:text-cloudquery-textWhite transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="sr-only">Twitter</span>
+                <span className="sr-only">LinkedIn</span>
                 <svg
                   className="h-5 w-5"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </a>
+              <a
+                href="https://www.youtube.com/@cloudqueryio"
+                className="text-cloudquery-textWhite/60 hover:text-cloudquery-textWhite transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="sr-only">YouTube</span>
+                <svg
+                  className="h-5 w-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                 </svg>
               </a>
             </div>
@@ -94,7 +118,7 @@ export const Footer: React.FC = () => {
 
           {/* Product Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-semibold text-cloudquery-textWhite uppercase tracking-wider mb-4">
               Product
             </h3>
             <ul className="space-y-3">
@@ -102,7 +126,7 @@ export const Footer: React.FC = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="flex items-center text-sm text-gray-300 hover:text-white transition-colors group"
+                    className="flex items-center text-sm text-cloudquery-textWhite/80 hover:text-cloudquery-textWhite transition-colors group"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -117,7 +141,7 @@ export const Footer: React.FC = () => {
 
           {/* Resources Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-semibold text-cloudquery-textWhite uppercase tracking-wider mb-4">
               Resources
             </h3>
             <ul className="space-y-3">
@@ -125,7 +149,7 @@ export const Footer: React.FC = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-sm text-gray-300 hover:text-white transition-colors"
+                    className="text-sm text-cloudquery-textWhite/80 hover:text-cloudquery-textWhite transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -138,7 +162,7 @@ export const Footer: React.FC = () => {
 
           {/* Support Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-semibold text-cloudquery-textWhite uppercase tracking-wider mb-4">
               Support
             </h3>
             <ul className="space-y-3">
@@ -146,7 +170,7 @@ export const Footer: React.FC = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-sm text-gray-300 hover:text-white transition-colors"
+                    className="text-sm text-cloudquery-textWhite/80 hover:text-cloudquery-textWhite transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -159,17 +183,17 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-8 pt-8 border-t border-gray-700">
+        <div className="mt-8 pt-8 border-t border-cloudquery-logoGreen/20">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-gray-400">
-              © {currentYear} CloudQuery. All rights reserved.
+            <p className="text-sm text-cloudquery-textWhite/60">
+              © {currentYear || "2025"} CloudQuery. All rights reserved.
             </p>
             <div className="mt-4 md:mt-0">
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-cloudquery-textWhite/60">
                 Built with{" "}
                 <a
                   href="https://www.cloudquery.io"
-                  className="text-cloudquery-blue hover:text-cloudquery-lightBlue transition-colors"
+                  className="text-cloudquery-logoGreen hover:text-cloudquery-ctaGreen transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -186,5 +210,3 @@ export const Footer: React.FC = () => {
 };
 
 export default Footer;
-
-

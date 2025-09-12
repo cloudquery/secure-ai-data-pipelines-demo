@@ -22,6 +22,22 @@ interface AnalysisResult {
   message: string;
   resources_count: number;
   status: "running" | "completed" | "failed";
+  analysis_breakdown?: {
+    total_resources: number;
+    providers: Array<{
+      name: string;
+      display_name: string;
+      count: number;
+      resource_types: Array<{
+        type: string;
+        count: number;
+      }>;
+    }>;
+    resource_types: Array<{
+      type: string;
+      count: number;
+    }>;
+  };
   findings?: Array<{
     id: string;
     severity: string;
@@ -70,6 +86,7 @@ export const AIAnalysis: React.FC = () => {
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(
     null
   );
+  const [showRawData, setShowRawData] = useState(false);
 
   useEffect(() => {
     fetchAnalysisHistory();
@@ -83,8 +100,8 @@ export const AIAnalysis: React.FC = () => {
           id: "1",
           timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
           status: "completed",
-          resources_analyzed: 45,
-          findings_count: 12,
+          resources_analyzed: 778,
+          findings_count: 45,
           ai_provider: "claude",
           findings: [
             {
@@ -109,6 +126,78 @@ export const AIAnalysis: React.FC = () => {
               finding_type: "exposed_database",
               description: "RDS instance is publicly accessible",
               risk_score: 9.1,
+              remediation_status: "open",
+            },
+            {
+              id: "h1-4",
+              severity: "high",
+              finding_type: "overprivileged_iam",
+              description: "IAM role has excessive permissions",
+              risk_score: 7.8,
+              remediation_status: "in_progress",
+            },
+            {
+              id: "h1-5",
+              severity: "medium",
+              finding_type: "insecure_network",
+              description: "Security group allows too broad access",
+              risk_score: 6.1,
+              remediation_status: "open",
+            },
+            {
+              id: "h1-6",
+              severity: "low",
+              finding_type: "missing_monitoring",
+              description: "Resource lacks proper monitoring",
+              risk_score: 3.2,
+              remediation_status: "open",
+            },
+            {
+              id: "h1-7",
+              severity: "critical",
+              finding_type: "exposed_secrets",
+              description: "Secrets exposed in environment variables",
+              risk_score: 9.5,
+              remediation_status: "open",
+            },
+            {
+              id: "h1-8",
+              severity: "high",
+              finding_type: "weak_encryption",
+              description: "Using weak encryption algorithm",
+              risk_score: 5.8,
+              remediation_status: "resolved",
+            },
+            {
+              id: "h1-9",
+              severity: "medium",
+              finding_type: "public_gcp_bucket",
+              description: "GCP storage bucket has public access",
+              risk_score: 6.5,
+              remediation_status: "open",
+            },
+            {
+              id: "h1-10",
+              severity: "high",
+              finding_type: "unencrypted_azure_disk",
+              description: "Azure disk is not encrypted",
+              risk_score: 7.2,
+              remediation_status: "open",
+            },
+            {
+              id: "h1-11",
+              severity: "critical",
+              finding_type: "exposed_azure_sql",
+              description: "Azure SQL server is publicly accessible",
+              risk_score: 9.3,
+              remediation_status: "open",
+            },
+            {
+              id: "h1-12",
+              severity: "medium",
+              finding_type: "insecure_gcp_firewall",
+              description: "GCP firewall rule allows unrestricted access",
+              risk_score: 5.9,
               remediation_status: "open",
             },
           ],
@@ -222,6 +311,70 @@ export const AIAnalysis: React.FC = () => {
         setAnalysisResult({
           ...result,
           status: "completed",
+          analysis_breakdown: {
+            total_resources: 778,
+            providers: [
+              {
+                name: "aws",
+                display_name: "Amazon Web Services",
+                count: 420,
+                resource_types: [
+                  { type: "ec2_instance", count: 45 },
+                  { type: "s3_bucket", count: 23 },
+                  { type: "rds_instance", count: 12 },
+                  { type: "iam_role", count: 89 },
+                  { type: "lambda_function", count: 34 },
+                  { type: "vpc", count: 8 },
+                  { type: "security_group", count: 67 },
+                  { type: "ebs_volume", count: 142 },
+                ],
+              },
+              {
+                name: "gcp",
+                display_name: "Google Cloud Platform",
+                count: 258,
+                resource_types: [
+                  { type: "compute_instance", count: 32 },
+                  { type: "storage_bucket", count: 18 },
+                  { type: "sql_instance", count: 8 },
+                  { type: "iam_service_account", count: 45 },
+                  { type: "cloud_function", count: 23 },
+                  { type: "compute_network", count: 12 },
+                  { type: "compute_firewall", count: 34 },
+                  { type: "compute_disk", count: 86 },
+                ],
+              },
+              {
+                name: "azure",
+                display_name: "Microsoft Azure",
+                count: 100,
+                resource_types: [
+                  { type: "virtual_machine", count: 15 },
+                  { type: "storage_account", count: 8 },
+                  { type: "sql_server", count: 5 },
+                  { type: "service_principal", count: 12 },
+                  { type: "function_app", count: 7 },
+                  { type: "virtual_network", count: 6 },
+                  { type: "network_security_group", count: 18 },
+                  { type: "managed_disk", count: 29 },
+                ],
+              },
+            ],
+            resource_types: [
+              { type: "ec2_instance", count: 45 },
+              { type: "compute_instance", count: 32 },
+              { type: "iam_role", count: 89 },
+              { type: "iam_service_account", count: 45 },
+              { type: "security_group", count: 67 },
+              { type: "compute_firewall", count: 34 },
+              { type: "ebs_volume", count: 142 },
+              { type: "compute_disk", count: 86 },
+              { type: "managed_disk", count: 29 },
+              { type: "s3_bucket", count: 23 },
+              { type: "storage_bucket", count: 18 },
+              { type: "storage_account", count: 8 },
+            ],
+          },
           findings: [
             {
               id: "1",
@@ -247,11 +400,102 @@ export const AIAnalysis: React.FC = () => {
               risk_score: 9.1,
               remediation_status: "open",
             },
+            {
+              id: "4",
+              severity: "high",
+              finding_type: "public_gcp_bucket",
+              description: "GCP storage bucket has public access",
+              risk_score: 6.5,
+              remediation_status: "open",
+            },
+            {
+              id: "5",
+              severity: "critical",
+              finding_type: "exposed_azure_sql",
+              description: "Azure SQL server is publicly accessible",
+              risk_score: 9.3,
+              remediation_status: "open",
+            },
+            {
+              id: "6",
+              severity: "medium",
+              finding_type: "insecure_gcp_firewall",
+              description: "GCP firewall rule allows unrestricted access",
+              risk_score: 5.9,
+              remediation_status: "open",
+            },
+            {
+              id: "7",
+              severity: "high",
+              finding_type: "unencrypted_azure_disk",
+              description: "Azure disk is not encrypted",
+              risk_score: 7.2,
+              remediation_status: "open",
+            },
+            {
+              id: "8",
+              severity: "high",
+              finding_type: "overprivileged_iam",
+              description: "IAM role has excessive permissions",
+              risk_score: 7.8,
+              remediation_status: "in_progress",
+            },
           ],
           ai_metadata: {
             ai_provider: "claude",
             analysis_timestamp: new Date().toISOString(),
             confidence_score: 0.92,
+            model_version: "claude-3-sonnet-20240229",
+            analysis_duration_ms: 15420,
+            tokens_used: 2847,
+            raw_ai_response: {
+              risk_score: 7.8,
+              severity: "high",
+              vulnerabilities: [
+                {
+                  type: "public_access",
+                  description: "Resource has public access enabled",
+                  impact: "Potential data exposure",
+                  attack_vectors: [
+                    "Direct internet access",
+                    "Data exfiltration",
+                  ],
+                },
+                {
+                  type: "encryption_disabled",
+                  description: "Resource does not have encryption enabled",
+                  impact: "Data stored in plaintext",
+                  attack_vectors: ["Data breach", "Compliance violation"],
+                },
+              ],
+              recommendations: [
+                {
+                  action: "Enable encryption at rest",
+                  priority: "high",
+                  effort: "medium",
+                  compliance_benefit: ["PCI DSS", "SOC 2"],
+                },
+                {
+                  action: "Restrict public access",
+                  priority: "critical",
+                  effort: "low",
+                  compliance_benefit: ["PCI DSS", "SOC 2", "ISO 27001"],
+                },
+              ],
+              compliance_violations: [
+                {
+                  framework: "PCI DSS",
+                  control: "3.4",
+                  description: "Encryption not enabled for sensitive data",
+                },
+                {
+                  framework: "SOC 2",
+                  control: "CC6.1",
+                  description:
+                    "Public access violates access control requirements",
+                },
+              ],
+            },
           },
         });
         setIsAnalyzing(false);
@@ -348,10 +592,13 @@ export const AIAnalysis: React.FC = () => {
               <SparklesIcon className="w-5 h-5 text-blue-500 mr-2 mt-0.5" />
               <div>
                 <h4 className="text-sm font-medium text-blue-900 mb-1">
-                  AI Analysis Features
+                  Multi-Cloud AI Analysis Features
                 </h4>
                 <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• GPT-4 and Claude-powered security assessment</li>
+                  <li>
+                    • GPT-4 and Claude-powered security assessment across AWS,
+                    GCP, and Azure
+                  </li>
                   <li>• Automated risk scoring and severity classification</li>
                   <li>
                     • Compliance framework evaluation (PCI DSS, SOC 2, ISO
@@ -361,6 +608,9 @@ export const AIAnalysis: React.FC = () => {
                     • Attack path detection and privilege escalation analysis
                   </li>
                   <li>• Automated remediation recommendations</li>
+                  <li>
+                    • Comprehensive resource breakdown by provider and type
+                  </li>
                 </ul>
               </div>
             </div>
@@ -388,6 +638,87 @@ export const AIAnalysis: React.FC = () => {
                 {analysisResult.resources_count} resources analyzed
               </div>
             </div>
+
+            {/* Analysis Breakdown */}
+            {analysisResult.analysis_breakdown && (
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3">
+                  Analysis Scope Breakdown
+                </h4>
+
+                {/* Provider Breakdown */}
+                <div className="mb-4">
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">
+                    Cloud Providers (
+                    {analysisResult.analysis_breakdown.providers.length})
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {analysisResult.analysis_breakdown.providers.map(
+                      (provider) => (
+                        <div
+                          key={provider.name}
+                          className="bg-white rounded border p-3"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-gray-900">
+                              {provider.display_name}
+                            </span>
+                            <Badge variant="info" size="sm">
+                              {provider.count} resources
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            <div className="font-medium mb-1">
+                              Resource Types:
+                            </div>
+                            <div className="space-y-1">
+                              {provider.resource_types.slice(0, 3).map((rt) => (
+                                <div
+                                  key={rt.type}
+                                  className="flex justify-between"
+                                >
+                                  <span>{rt.type.replace(/_/g, " ")}</span>
+                                  <span>{rt.count}</span>
+                                </div>
+                              ))}
+                              {provider.resource_types.length > 3 && (
+                                <div className="text-gray-500">
+                                  +{provider.resource_types.length - 3} more...
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Top Resource Types */}
+                <div>
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">
+                    Top Resource Types
+                  </h5>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {analysisResult.analysis_breakdown.resource_types
+                      .slice(0, 8)
+                      .map((rt) => (
+                        <div
+                          key={rt.type}
+                          className="bg-white rounded border p-2 text-center"
+                        >
+                          <div className="text-sm font-medium text-gray-900">
+                            {rt.count}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {rt.type.replace(/_/g, " ")}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {analysisResult.status === "completed" &&
               analysisResult.findings && (
@@ -560,6 +891,120 @@ export const AIAnalysis: React.FC = () => {
           ))}
         </div>
       </Card>
+
+      {/* Raw AI Data Section */}
+      {analysisResult && analysisResult.status === "completed" && (
+        <Card
+          title="Raw AI Analysis Data"
+          subtitle="Expand to view detailed AI provider response"
+        >
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <SparklesIcon className="w-5 h-5 text-blue-500" />
+                <span className="text-sm font-medium text-gray-700">
+                  AI Provider Response Data
+                </span>
+              </div>
+              <button
+                onClick={() => setShowRawData(!showRawData)}
+                className="flex items-center space-x-1 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              >
+                {showRawData ? (
+                  <ChevronDownIcon className="w-4 h-4" />
+                ) : (
+                  <ChevronRightIcon className="w-4 h-4" />
+                )}
+                <span>{showRawData ? "Hide" : "Show"} Raw Data</span>
+              </button>
+            </div>
+
+            {showRawData && (
+              <div className="space-y-4">
+                {/* AI Metadata */}
+                {analysisResult.ai_metadata && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h5 className="font-medium text-gray-900 mb-2">
+                      AI Metadata
+                    </h5>
+                    <pre className="text-xs text-gray-700 bg-white p-3 rounded border overflow-x-auto">
+                      {JSON.stringify(analysisResult.ai_metadata, null, 2)}
+                    </pre>
+                  </div>
+                )}
+
+                {/* Analysis Breakdown */}
+                {analysisResult.analysis_breakdown && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h5 className="font-medium text-gray-900 mb-2">
+                      Analysis Breakdown
+                    </h5>
+                    <pre className="text-xs text-gray-700 bg-white p-3 rounded border overflow-x-auto">
+                      {JSON.stringify(
+                        analysisResult.analysis_breakdown,
+                        null,
+                        2
+                      )}
+                    </pre>
+                  </div>
+                )}
+
+                {/* Findings Data */}
+                {analysisResult.findings && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h5 className="font-medium text-gray-900 mb-2">
+                      Security Findings
+                    </h5>
+                    <pre className="text-xs text-gray-700 bg-white p-3 rounded border overflow-x-auto">
+                      {JSON.stringify(analysisResult.findings, null, 2)}
+                    </pre>
+                  </div>
+                )}
+
+                {/* Complete Analysis Result */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h5 className="font-medium text-gray-900 mb-2">
+                    Complete Analysis Result
+                  </h5>
+                  <pre className="text-xs text-gray-700 bg-white p-3 rounded border overflow-x-auto max-h-96 overflow-y-auto">
+                    {JSON.stringify(analysisResult, null, 2)}
+                  </pre>
+                </div>
+
+                {/* Technical Info */}
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                  <div className="flex items-start">
+                    <ExclamationTriangleIcon className="w-5 h-5 text-blue-500 mr-2 mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-medium text-blue-900 mb-1">
+                        Raw Data Information
+                      </h4>
+                      <ul className="text-sm text-blue-700 space-y-1">
+                        <li>
+                          • This data shows the complete response from the AI
+                          provider
+                        </li>
+                        <li>
+                          • Useful for debugging analysis results and
+                          understanding AI reasoning
+                        </li>
+                        <li>
+                          • Includes confidence scores, timestamps, and detailed
+                          findings
+                        </li>
+                        <li>
+                          • Data structure may vary between different AI
+                          providers (OpenAI vs Claude)
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
     </div>
   );
 };

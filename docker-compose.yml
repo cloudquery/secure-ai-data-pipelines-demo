@@ -35,7 +35,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-cloudquery}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-cloudquery_security}
       REDIS_URL: redis://redis:6379
-      CORS_ORIGINS: '["http://localhost:3000","https://yourdomain.com"]'
+      CORS_ORIGINS: '["*"]'
     env_file:
       - .env
     ports:

@@ -14,10 +14,26 @@
   }
   
   .btn-primary {
-    @apply bg-cloudquery-blue text-white hover:bg-cloudquery-darkBlue;
+    @apply bg-cloudquery-logoGreen text-cloudquery-textWhite hover:bg-cloudquery-ctaGreen;
   }
   
   .btn-secondary {
     @apply bg-gray-200 text-gray-900 hover:bg-gray-300;
+  }
+  
+  .btn-cta {
+    @apply bg-cloudquery-ctaGreen text-cloudquery-textWhite hover:bg-cloudquery-logoGreen;
+  }
+  
+  .bg-brand-dark {
+    @apply bg-cloudquery-bgDarkTeal;
+  }
+  
+  .bg-brand-gradient {
+    @apply bg-cloudquery-bgGradient;
+  }
+  
+  .text-brand-white {
+    @apply text-cloudquery-textWhite;
   }
 }

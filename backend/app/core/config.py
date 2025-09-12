@@ -33,7 +33,6 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = Field(default="redis://localhost:6379", env="REDIS_URL")
 
-
     # AI/ML APIs
     openai_api_key: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
     anthropic_api_key: Optional[str] = Field(
@@ -64,7 +63,8 @@ class Settings(BaseSettings):
 
     # CORS
     cors_origins: List[str] = Field(
-        default=["http://localhost:3000", "https://localhost:3000"],
+        default=["http://localhost:3000", "https://localhost:3000", "http://localhost:3001",
+                 "http://localhost:3002", "http://localhost:3003", "http://localhost:3004"],
         env="CORS_ORIGINS"
     )
 

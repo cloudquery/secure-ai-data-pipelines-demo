@@ -21,11 +21,21 @@ module.exports = {
                     800: '#075985',
                     900: '#0c4a6e',
                 },
-                // CloudQuery accent colors
+                // CloudQuery brand colors (Visual Analysis)
                 cloudquery: {
-                    blue: '#0ea5e9',
-                    darkBlue: '#0369a1',
-                    lightBlue: '#38bdf8',
+                    // Primary Colors
+                    logoGreen: '#00D4AA',        // Logo Green: ~#00D4AA (circular logo background)
+                    ctaGreen: '#00C48C',         // CTA Button Green: ~#00C48C (Start for Free button)
+                    bgDarkTeal: '#0D2B2F',       // Background Dark Teal: ~#0D2B2F (main dark background)
+                    bgGradient: '#1A4A52',       // Background Gradient: ~#1A4A52 (lighter teal areas)
+
+                    // Supporting Colors
+                    textWhite: '#FFFFFF',        // Text White: #FFFFFF (primary text)
+
+                    // Legacy colors for backward compatibility
+                    blue: '#00D4AA',             // Map to logo green
+                    darkBlue: '#0D2B2F',         // Map to dark teal
+                    lightBlue: '#1A4A52',        // Map to gradient teal
                     gray: '#64748b',
                     darkGray: '#334155',
                 },

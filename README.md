@@ -199,9 +199,7 @@ npm run dev
 cd backend
 python app/workers/simple_data_processor.py
 
-# Test specific data processing
-python process_azure_data.py
-python process_cloudquery_data.py
+# Test data processing (handled automatically by background workers)
 
 # Run with Docker for testing
 docker-compose run --rm data-processor
