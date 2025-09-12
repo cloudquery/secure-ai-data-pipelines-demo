@@ -3,6 +3,8 @@
 Base data processor class with common functionality for CloudQuery sync processing.
 """
 
+from app.models.cloud_resources import CloudProvider, CloudAccount, CloudResource
+from app.models.database import Base
 import json
 import logging
 import os
@@ -17,8 +19,6 @@ from sqlalchemy import create_engine, text
 # Add the app directory to the Python path
 sys.path.append('/app')
 
-from app.models.database import Base
-from app.models.cloud_resources import CloudProvider, CloudAccount, CloudResource
 
 # Configure logging
 logging.basicConfig(
@@ -58,8 +58,8 @@ class BaseDataProcessor:
 
         return provider
 
-    def _get_or_create_account(self, provider: CloudProvider, account_id: str, 
-                             account_name: str = None) -> CloudAccount:
+    def _get_or_create_account(self, provider: CloudProvider, account_id: str,
+                               account_name: str = None) -> CloudAccount:
         """Get or create a cloud account."""
         account = self.db_session.query(CloudAccount).filter(
             CloudAccount.provider_id == provider.id,
@@ -79,10 +79,10 @@ class BaseDataProcessor:
 
         return account
 
-    def _create_resource(self, account: CloudAccount, resource_type: str, 
-                        resource_id: str, resource_name: str = None,
-                        region: str = None, properties: Dict[str, Any] = None,
-                        tags: Dict[str, str] = None) -> CloudResource:
+    def _create_resource(self, account: CloudAccount, resource_type: str,
+                         resource_id: str, resource_name: str = None,
+                         region: str = None, properties: Dict[str, Any] = None,
+                         tags: Dict[str, str] = None) -> CloudResource:
         """Create a cloud resource."""
         resource = CloudResource(
             account_id=account.id,
@@ -102,36 +102,36 @@ class BaseDataProcessor:
         """Extract tags from various tag formats."""
         if not tags_data:
             return {}
-        
+
         if isinstance(tags_data, dict):
             return tags_data
-        
+
         if isinstance(tags_data, str):
             try:
                 return json.loads(tags_data)
             except json.JSONDecodeError:
                 return {}
-        
+
         return {}
 
     def _extract_properties(self, properties_data: Any) -> Dict[str, Any]:
         """Extract properties from various property formats."""
         if not properties_data:
             return {}
-        
+
         if isinstance(properties_data, dict):
             return properties_data
-        
+
         if isinstance(properties_data, str):
             try:
                 return json.loads(properties_data)
             except json.JSONDecodeError:
                 return {}
-        
+
         return {}
 
-    def update_processing_status(self, queue_id: int, status: str, 
-                               error_message: str = None):
+    def update_processing_status(self, queue_id: int, status: str,
+                                 error_message: str = None):
         """Update processing queue status."""
         try:
             self.db_session.execute(text("""
