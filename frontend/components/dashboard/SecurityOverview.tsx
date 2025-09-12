@@ -107,12 +107,12 @@ const SecurityDetailModal: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+      <div className="bg-cloudquery-bgGradient rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden border border-cloudquery-logoGreen/20">
+        <div className="flex items-center justify-between p-6 border-b border-cloudquery-logoGreen/20">
+          <h2 className="text-xl font-semibold text-brand-white">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-cloudquery-textWhite/80 hover:text-brand-white"
           >
             <XMarkIcon className="w-6 h-6" />
           </button>
@@ -141,21 +141,25 @@ const ExpandableMetricCard: React.FC<{
         <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
           {icon}
         </div>
-        <div className="text-2xl font-bold text-gray-900">{value}</div>
-        <div className="text-sm text-gray-600">{title}</div>
+        <div className="text-2xl font-bold text-brand-white">{value}</div>
+        <div className="text-sm text-brand-white">{title}</div>
         {subtitle && (
-          <div className="text-xs text-gray-500 mt-1">{subtitle}</div>
+          <div className="text-xs text-cloudquery-textWhite/80 mt-1">
+            {subtitle}
+          </div>
         )}
         <div className="mt-2 flex justify-center">
           {isExpanded ? (
-            <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+            <ChevronUpIcon className="w-4 h-4 text-brand-white" />
           ) : (
-            <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+            <ChevronDownIcon className="w-4 h-4 text-brand-white" />
           )}
         </div>
       </div>
       {isExpanded && children && (
-        <div className="border-t p-4 bg-gray-50">{children}</div>
+        <div className="border-t border-cloudquery-logoGreen/20 p-4 text-brand-white">
+          {children}
+        </div>
       )}
     </Card>
   );
@@ -564,6 +568,90 @@ export const SecurityOverview: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Urgent Security Considerations */}
+      <Card
+        title="🚨 Urgent Security Considerations"
+        className="border-red-500 bg-red-900"
+      >
+        <div className="space-y-4">
+          <div className="text-sm text-white mb-4">
+            The following findings require immediate attention:
+          </div>
+
+          {/* Mock urgent findings - in real implementation, this would come from the API */}
+          <div className="space-y-3">
+            {data.severity_distribution.filter((s) => s.severity === "critical")
+              .length > 0 && (
+              <div className="flex items-center justify-between p-3 bg-red-800 rounded-lg border border-red-600">
+                <div className="flex items-center space-x-3">
+                  <ExclamationTriangleIcon className="w-5 h-5 text-white" />
+                  <div>
+                    <div className="font-medium text-white">
+                      Critical Severity Findings
+                    </div>
+                    <div className="text-sm text-white">
+                      {data.severity_distribution.find(
+                        (s) => s.severity === "critical"
+                      )?.count || 0}{" "}
+                      critical findings detected
+                    </div>
+                  </div>
+                </div>
+                <Badge variant="critical">
+                  {data.severity_distribution.find(
+                    (s) => s.severity === "critical"
+                  )?.count || 0}
+                </Badge>
+              </div>
+            )}
+
+            {data.high_risk_findings > 0 && (
+              <div className="flex items-center justify-between p-3 bg-orange-800 rounded-lg border border-orange-600">
+                <div className="flex items-center space-x-3">
+                  <ShieldExclamationIcon className="w-5 h-5 text-white" />
+                  <div>
+                    <div className="font-medium text-white">
+                      High Risk Findings
+                    </div>
+                    <div className="text-sm text-white">
+                      {data.high_risk_findings} high-risk findings require
+                      attention
+                    </div>
+                  </div>
+                </div>
+                <Badge variant="high">{data.high_risk_findings}</Badge>
+              </div>
+            )}
+
+            {data.recent_findings > 5 && (
+              <div className="flex items-center justify-between p-3 bg-yellow-800 rounded-lg border border-yellow-600">
+                <div className="flex items-center space-x-3">
+                  <ClockIcon className="w-5 h-5 text-white" />
+                  <div>
+                    <div className="font-medium text-white">
+                      High Recent Activity
+                    </div>
+                    <div className="text-sm text-white">
+                      {data.recent_findings} new findings in the last 7 days
+                    </div>
+                  </div>
+                </div>
+                <Badge variant="medium">{data.recent_findings}</Badge>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-3 border-t border-red-600">
+            <button
+              onClick={() => handleModalOpen("urgent")}
+              className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              View All Urgent Findings
+            </button>
+          </div>
+        </div>
+      </Card>
+
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <ExpandableMetricCard
@@ -575,11 +663,14 @@ export const SecurityOverview: React.FC = () => {
           isExpanded={expandedCard === "total"}
         >
           <div className="text-left space-y-2">
-            <div className="text-sm font-medium text-gray-700">
+            <div className="text-sm font-medium text-brand-white">
               Breakdown by Severity:
             </div>
             {data.severity_distribution.map((item) => (
-              <div key={item.severity} className="flex justify-between text-xs">
+              <div
+                key={item.severity}
+                className="flex justify-between text-xs text-brand-white"
+              >
                 <span className="capitalize">{item.severity}</span>
                 <span className="font-medium">{item.count}</span>
               </div>
@@ -602,15 +693,15 @@ export const SecurityOverview: React.FC = () => {
           isExpanded={expandedCard === "high-risk"}
         >
           <div className="text-left space-y-2">
-            <div className="text-sm font-medium text-gray-700">
+            <div className="text-sm font-medium text-brand-white">
               Risk Distribution:
             </div>
-            <div className="text-xs text-red-600 font-medium">
+            <div className="text-xs text-brand-white font-medium">
               Critical:{" "}
               {data.severity_distribution.find((s) => s.severity === "critical")
                 ?.count || 0}
             </div>
-            <div className="text-xs text-orange-600 font-medium">
+            <div className="text-xs text-brand-white font-medium">
               High:{" "}
               {data.severity_distribution.find((s) => s.severity === "high")
                 ?.count || 0}
@@ -633,13 +724,13 @@ export const SecurityOverview: React.FC = () => {
           isExpanded={expandedCard === "recent"}
         >
           <div className="text-left space-y-2">
-            <div className="text-sm font-medium text-gray-700">
+            <div className="text-sm font-medium text-brand-white">
               Recent Activity:
             </div>
-            <div className="text-xs text-gray-600">
+            <div className="text-xs text-brand-white">
               New findings detected in the past week
             </div>
-            <div className="text-xs text-gray-600">
+            <div className="text-xs text-brand-white">
               Average per day: {Math.round(data.recent_findings / 7)}
             </div>
             <button
@@ -655,12 +746,12 @@ export const SecurityOverview: React.FC = () => {
           <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-green-100 rounded-full">
             <CheckCircleIcon className="w-6 h-6 text-green-600" />
           </div>
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-2xl font-bold text-brand-white">
             {data.status_distribution.find((s) => s.status === "resolved")
               ?.count || 0}
           </div>
-          <div className="text-sm text-gray-600">Resolved</div>
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-sm text-brand-white">Resolved</div>
+          <div className="text-xs text-cloudquery-textWhite/80 mt-1">
             {Math.round(
               ((data.status_distribution.find((s) => s.status === "resolved")
                 ?.count || 0) /
@@ -681,11 +772,11 @@ export const SecurityOverview: React.FC = () => {
               style={{ width: `${(data.average_risk_score / 10) * 100}%` }}
             ></div>
           </div>
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-2xl font-bold text-brand-white">
             {data.average_risk_score}/10
           </div>
         </div>
-        <div className="mt-2 text-sm text-gray-600">
+        <div className="mt-2 text-sm text-brand-white">
           <Badge
             variant={
               data.average_risk_score >= 7
@@ -725,7 +816,15 @@ export const SecurityOverview: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value, name) => [value, name]} />
+                <Tooltip
+                  formatter={(value, name) => [value, name]}
+                  contentStyle={{
+                    backgroundColor: "#1f2937",
+                    border: "1px solid #374151",
+                    borderRadius: "6px",
+                    color: "#ffffff",
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -736,7 +835,7 @@ export const SecurityOverview: React.FC = () => {
                   className="w-3 h-3 rounded-full"
                   style={{ backgroundColor: item.color }}
                 ></div>
-                <span className="text-sm text-gray-600 capitalize">
+                <span className="text-sm text-brand-white capitalize">
                   {item.name}: {item.value}
                 </span>
               </div>
@@ -749,100 +848,30 @@ export const SecurityOverview: React.FC = () => {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={statusData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" stroke="#6b7280" />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fill: "#ffffff", fontSize: 12 }}
+                  axisLine={{ stroke: "#6b7280" }}
+                />
+                <YAxis
+                  tick={{ fill: "#ffffff", fontSize: 12 }}
+                  axisLine={{ stroke: "#6b7280" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1f2937",
+                    border: "1px solid #374151",
+                    borderRadius: "6px",
+                    color: "#ffffff",
+                  }}
+                />
                 <Bar dataKey="value" fill="#3b82f6" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
       </div>
-
-      {/* Urgent Security Considerations */}
-      <Card
-        title="🚨 Urgent Security Considerations"
-        className="border-red-200 bg-red-50"
-      >
-        <div className="space-y-4">
-          <div className="text-sm text-red-700 mb-4">
-            The following findings require immediate attention:
-          </div>
-
-          {/* Mock urgent findings - in real implementation, this would come from the API */}
-          <div className="space-y-3">
-            {data.severity_distribution.filter((s) => s.severity === "critical")
-              .length > 0 && (
-              <div className="flex items-center justify-between p-3 bg-red-100 rounded-lg border border-red-200">
-                <div className="flex items-center space-x-3">
-                  <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
-                  <div>
-                    <div className="font-medium text-red-800">
-                      Critical Severity Findings
-                    </div>
-                    <div className="text-sm text-red-600">
-                      {data.severity_distribution.find(
-                        (s) => s.severity === "critical"
-                      )?.count || 0}{" "}
-                      critical findings detected
-                    </div>
-                  </div>
-                </div>
-                <Badge variant="critical">
-                  {data.severity_distribution.find(
-                    (s) => s.severity === "critical"
-                  )?.count || 0}
-                </Badge>
-              </div>
-            )}
-
-            {data.high_risk_findings > 0 && (
-              <div className="flex items-center justify-between p-3 bg-orange-100 rounded-lg border border-orange-200">
-                <div className="flex items-center space-x-3">
-                  <ShieldExclamationIcon className="w-5 h-5 text-orange-600" />
-                  <div>
-                    <div className="font-medium text-orange-800">
-                      High Risk Findings
-                    </div>
-                    <div className="text-sm text-orange-600">
-                      {data.high_risk_findings} high-risk findings require
-                      attention
-                    </div>
-                  </div>
-                </div>
-                <Badge variant="high">{data.high_risk_findings}</Badge>
-              </div>
-            )}
-
-            {data.recent_findings > 5 && (
-              <div className="flex items-center justify-between p-3 bg-yellow-100 rounded-lg border border-yellow-200">
-                <div className="flex items-center space-x-3">
-                  <ClockIcon className="w-5 h-5 text-yellow-600" />
-                  <div>
-                    <div className="font-medium text-yellow-800">
-                      High Recent Activity
-                    </div>
-                    <div className="text-sm text-yellow-600">
-                      {data.recent_findings} new findings in the last 7 days
-                    </div>
-                  </div>
-                </div>
-                <Badge variant="medium">{data.recent_findings}</Badge>
-              </div>
-            )}
-          </div>
-
-          <div className="pt-3 border-t border-red-200">
-            <button
-              onClick={() => handleModalOpen("urgent")}
-              className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-            >
-              View All Urgent Findings
-            </button>
-          </div>
-        </div>
-      </Card>
 
       {/* Additional Security Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -861,10 +890,24 @@ export const SecurityOverview: React.FC = () => {
                   ]
                 }
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" stroke="#6b7280" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fill: "#ffffff", fontSize: 12 }}
+                  axisLine={{ stroke: "#6b7280" }}
+                />
+                <YAxis
+                  tick={{ fill: "#ffffff", fontSize: 12 }}
+                  axisLine={{ stroke: "#6b7280" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#1f2937",
+                    border: "1px solid #374151",
+                    borderRadius: "6px",
+                    color: "#ffffff",
+                  }}
+                />
                 <Area
                   type="monotone"
                   dataKey="findings"
@@ -887,11 +930,11 @@ export const SecurityOverview: React.FC = () => {
           <div className="mt-4 flex justify-center space-x-6">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">New Findings</span>
+              <span className="text-sm text-brand-white">New Findings</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Resolved</span>
+              <span className="text-sm text-brand-white">Resolved</span>
             </div>
           </div>
         </Card>
@@ -916,20 +959,31 @@ export const SecurityOverview: React.FC = () => {
                   ]
                 }
               >
-                <CartesianGrid strokeDasharray="3 3" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#6b7280" />
                 <XAxis
                   dataKey="resource_type"
                   angle={-45}
                   textAnchor="end"
                   height={80}
                   fontSize={12}
+                  tick={{ fill: "#ffffff", fontSize: 12 }}
+                  axisLine={{ stroke: "#6b7280" }}
                 />
-                <YAxis />
+                <YAxis
+                  tick={{ fill: "#ffffff", fontSize: 12 }}
+                  axisLine={{ stroke: "#6b7280" }}
+                />
                 <Tooltip
                   formatter={(value, name) => [
                     value,
                     name === "count" ? "Total Resources" : "Security Findings",
                   ]}
+                  contentStyle={{
+                    backgroundColor: "#1f2937",
+                    border: "1px solid #374151",
+                    borderRadius: "6px",
+                    color: "#ffffff",
+                  }}
                 />
                 <Bar dataKey="count" fill="#3b82f6" name="count" />
                 <Bar dataKey="findings" fill="#ef4444" name="findings" />
@@ -939,11 +993,13 @@ export const SecurityOverview: React.FC = () => {
           <div className="mt-4 flex justify-center space-x-6">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Total Resources</span>
+              <span className="text-sm text-brand-white">Total Resources</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">Security Findings</span>
+              <span className="text-sm text-brand-white">
+                Security Findings
+              </span>
             </div>
           </div>
         </Card>
@@ -974,9 +1030,12 @@ export const SecurityOverview: React.FC = () => {
               },
             ]
           ).map((framework) => (
-            <div key={framework.framework} className="p-3 border rounded-lg">
+            <div
+              key={framework.framework}
+              className="p-3 border border-cloudquery-logoGreen/20 rounded-lg"
+            >
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-brand-white">
                   {framework.framework}
                 </span>
                 <Badge
@@ -991,7 +1050,7 @@ export const SecurityOverview: React.FC = () => {
                   {framework.compliance_score}%
                 </Badge>
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-brand-white">
                 {framework.violations} violations (
                 {framework.critical_violations} critical)
               </div>
@@ -1021,7 +1080,7 @@ export const SecurityOverview: React.FC = () => {
                 <div className="flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full text-blue-600 text-sm font-medium">
                   {index + 1}
                 </div>
-                <span className="text-sm font-medium text-gray-900 capitalize">
+                <span className="text-sm font-medium text-brand-white capitalize">
                   {item.type.replace("_", " ")}
                 </span>
               </div>
@@ -1040,17 +1099,22 @@ export const SecurityOverview: React.FC = () => {
         <div className="space-y-4">
           {detailedFindings.length > 0 ? (
             detailedFindings.map((finding) => (
-              <div key={finding.id} className="border rounded-lg p-4">
+              <div
+                key={finding.id}
+                className="border border-cloudquery-logoGreen/20 rounded-lg p-4"
+              >
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-medium text-gray-900">{finding.title}</h3>
+                  <h3 className="font-medium text-brand-white">
+                    {finding.title}
+                  </h3>
                   <Badge variant={finding.severity as any}>
                     {finding.severity}
                   </Badge>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">
+                <p className="text-sm text-brand-white mb-2">
                   {finding.description}
                 </p>
-                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                <div className="flex items-center space-x-4 text-xs text-brand-white">
                   <span>Resource: {finding.resource_name}</span>
                   <span>Provider: {finding.provider}</span>
                   <span>Region: {finding.region}</span>
@@ -1059,7 +1123,7 @@ export const SecurityOverview: React.FC = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-brand-white">
               No detailed findings available at this time.
             </div>
           )}
