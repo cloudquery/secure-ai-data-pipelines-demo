@@ -6,7 +6,7 @@ pydantic-settings>=2.0.0
 python-multipart==0.0.22
 
 # Database & ORM
-sqlalchemy==2.0.23
+sqlalchemy==2.0.52
 psycopg2-binary==2.9.9
 alembic==1.12.1
 
