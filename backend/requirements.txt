@@ -1,7 +1,7 @@
 # Core Backend Dependencies
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-pydantic==2.5.0
+pydantic==2.13.5
 pydantic-settings>=2.0.0
 python-multipart==0.0.22
 
