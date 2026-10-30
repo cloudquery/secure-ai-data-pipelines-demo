@@ -3,8 +3,7 @@ Security utilities for authentication and authorization.
 """
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
-import jwt
-from jwt import InvalidTokenError
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -73,7 +72,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
             algorithms=[settings.algorithm]
         )
         return payload
-    except InvalidTokenError:
+    except JWTError:
         raise credentials_exception
 
 
