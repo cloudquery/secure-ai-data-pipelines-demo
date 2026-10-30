@@ -1,6 +1,7 @@
 """
 API endpoints for cloud resource management.
 """
+import logging
 from typing import List, Optional, Dict, Any
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -10,6 +11,8 @@ from sqlalchemy import and_, or_, func, desc
 from ...models import get_db, CloudResource, CloudProvider, CloudAccount, SecurityFinding
 from ...core.security import mask_sensitive_fields
 from ...utils.pagination import paginate
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/resources", tags=["resources"])
 
@@ -30,10 +33,10 @@ async def test_db_endpoint(db: Session = Depends(get_db)):
             "resource_count": count,
             "status": "ok"
         }
-    except Exception as e:
+    except Exception:
+        logger.exception("Database connection check failed")
         return {
             "message": "Database connection failed",
-            "error": str(e),
             "status": "error"
         }
 
