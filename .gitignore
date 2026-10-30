@@ -18,6 +18,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!frontend/lib/
 lib64/
 parts/
 sdist/
@@ -199,6 +200,7 @@ Desktop.ini
 *.pkl
 *.joblib
 models/
+!backend/app/models/
 checkpoints/
 
 # Data files
