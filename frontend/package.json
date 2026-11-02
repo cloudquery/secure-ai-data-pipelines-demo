@@ -48,7 +48,7 @@
       "postcss": "$postcss"
     },
     "@typescript-eslint/typescript-estree": {
-      "minimatch": "^9.0.7"
+      "minimatch": "^10.0.0"
     }
   }
 }
