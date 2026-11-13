@@ -63,9 +63,10 @@ class DataSanitizer:
         """
         import random
 
-        # Add Laplace noise
+        # Add Laplace noise (the difference of two exponential draws is
+        # Laplace-distributed; the standard library has no random.laplace)
         scale = sensitivity / epsilon
-        noise = random.laplace(0, scale)
+        noise = random.expovariate(1 / scale) - random.expovariate(1 / scale)
 
         if isinstance(numeric_data, int):
             return max(0, int(numeric_data + noise))
