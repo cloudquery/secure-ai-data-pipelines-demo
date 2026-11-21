@@ -27,5 +27,5 @@ httpx==0.28.1
 
 # Development
 black==26.10.1
-flake8==6.1.0
+flake8==7.5.0
 mypy==1.20.2
